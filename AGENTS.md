@@ -108,3 +108,28 @@
 - Implement in small PRs (one service capability at a time).
 - Every PR includes tests, OpenAPI updates, and event-contract updates when applicable.
 - No feature considered done without observability + security checks.
+
+## Execution Tracker (maintained by agent)
+
+### Milestone status
+- [x] M0.1 Create monorepo folders (`services`, `libs`, `infra`)
+- [x] M0.2 Initialize baseline services (`user-service`, `media-service`) and shared libs (`common-events`, `common-security`, `common-observability`)
+- [x] M0.3 Add root `docker-compose.yml` with PostgreSQL, Redis, Kafka-compatible broker (Redpanda), MinIO
+- [x] M0.4 Add service Dockerfiles, env-driven configs, and `/actuator/health` readiness/liveness probes
+- [x] M0.5 Add CI workflow for build, tests, static checks, coverage report
+- [x] M0.6 Define OpenAPI conventions, standardized error contract, and API versioning baseline
+
+### Functional requirements progress
+- [x] FR-001: All external APIs are versioned (`/api/v1/...`) (foundation baseline)
+- [x] FR-002: Standardized error payload (`code`, `message`, `details`, `traceId`) (foundation baseline)
+- [x] FR-003: Request validation and input sanitization at API boundaries (foundation baseline)
+- [ ] FR-004: Auth enforced for all non-public routes (baseline security config in place; JWT flow pending)
+- [x] FR-005: Service health endpoints exposed for liveness/readiness (actuator probes configured)
+- [x] FR-006: Event schemas are versioned and backward compatible (envelope + version fields baseline)
+- [ ] FR-007: Event consumers are idempotent (pending consumer implementation)
+- [ ] FR-008: Observability baseline: structured logs, metrics, traces (partial baseline; tracing/log correlation pending)
+
+### Next item in queue
+1. Complete FR-004 by adding JWT-based auth flow in `user-service` and enforcing bearer token on protected endpoints.
+2. Finish FR-008 by adding trace propagation and common logging/metrics conventions.
+3. Start User Service FR-101 (real registration + persistence).

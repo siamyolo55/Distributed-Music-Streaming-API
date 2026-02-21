@@ -2,7 +2,69 @@
 
 **distributed systems project** to design and build a Spotify-like backend using **Java + Spring Boot**, **Docker**, and event-driven architecture.
 
-This repository starts with an architecture-first README so the implementation can evolve in a structured, production-minded way.
+This repository now includes a runnable Milestone 0 scaffold (multi-module Maven project, Docker Compose infra, and baseline `user-service` + `media-service`).
+
+---
+
+## Quick Start (Run It)
+
+### Prerequisites
+- Java 21
+- Maven 3.9+
+- Docker Desktop (with Compose)
+
+### 1) Build once
+
+```bash
+mvn clean verify
+```
+
+### 2) Run full stack with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Services and ports:
+- User Service: `http://localhost:8081`
+- Media Service: `http://localhost:8082`
+- PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379`
+- Redpanda (Kafka API): `localhost:9092`
+- MinIO API: `http://localhost:9000`
+- MinIO Console: `http://localhost:9001`
+
+### 3) Health checks
+
+```bash
+curl http://localhost:8081/actuator/health
+curl http://localhost:8082/actuator/health
+```
+
+### 4) Try current APIs
+
+Public endpoint (no auth):
+
+```bash
+curl -X POST http://localhost:8081/api/v1/public/users/register \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"test@example.com\",\"password\":\"pass123\",\"displayName\":\"Test User\"}"
+```
+
+Protected endpoint (Basic auth for current scaffold):
+
+```bash
+curl -X POST http://localhost:8082/api/v1/media/tracks \
+  -u admin:admin123 \
+  -H "Content-Type: application/json" \
+  -d "{\"title\":\"Song A\",\"artistId\":\"artist-1\"}"
+```
+
+### 5) Stop stack
+
+```bash
+docker compose down
+```
 
 ---
 
@@ -167,13 +229,13 @@ To keep this project senior-level, follow these engineering principles from day 
 
 ## 6) Docker & Local Development
 
-### Phase 1 local stack (recommended)
-Use `docker-compose` to run:
+### Phase 1 local stack (implemented)
+Use `docker compose` to run:
 - PostgreSQL
 - Redis
-- Kafka + Zookeeper (or Redpanda as alternative)
+- Redpanda (Kafka-compatible broker)
 - MinIO
-- One or more Spring Boot services
+- User Service + Media Service
 
 ### Containerization pattern per service
 - Multi-stage Dockerfile (build with Maven/Gradle, run on lightweight JRE image)
@@ -273,17 +335,14 @@ Use `docker-compose` to run:
 
 ---
 
-## 12) Immediate Next Step
+## 12) Current Status + Next Step
 
-Create the project skeleton with:
-1. root `docker-compose.yml`
-2. `/services/user-service` Spring Boot app
-3. `/services/media-service` Spring Boot app
-4. shared `common-events` library
-5. first Kafka topic + event contract (`TrackStarted`)
+Implemented now:
+1. Root multi-module Maven project
+2. `services/user-service` and `services/media-service`
+3. Shared libs: `common-events`, `common-security`, `common-observability`
+4. Root `docker-compose.yml` with Postgres/Redis/Redpanda/MinIO and both services
+5. Baseline API conventions (`/api/v1` + standard error contract) and CI workflow
 
-Then iterate service by service.
-
----
-
-If you want, I can generate the **entire initial scaffold** next (Spring Boot apps, Docker Compose, Kafka/Redis/Postgres config, and starter endpoints).
+Next step:
+1. Implement JWT auth flow (FR-004, FR-102) and move protected endpoints from Basic auth to bearer tokens.
