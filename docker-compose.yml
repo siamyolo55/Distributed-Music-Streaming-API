@@ -73,14 +73,26 @@ services:
     volumes:
       - minio-data:/data
 
+  pgadmin:
+    image: dpage/pgadmin4:9.6
+    container_name: dmsa-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
   user-service:
     build:
       context: .
       dockerfile: services/user-service/Dockerfile
     environment:
       SERVER_PORT: 8081
-      SPRING_SECURITY_USER_NAME: admin
-      SPRING_SECURITY_USER_PASSWORD: admin123
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: music
@@ -89,6 +101,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      JWT_SECRET: changeit-changeit-changeit-changeit
     depends_on:
       postgres:
         condition: service_healthy
@@ -105,8 +118,6 @@ services:
       dockerfile: services/media-service/Dockerfile
     environment:
       SERVER_PORT: 8082
-      SPRING_SECURITY_USER_NAME: admin
-      SPRING_SECURITY_USER_PASSWORD: admin123
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: music
@@ -115,6 +126,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      JWT_SECRET: changeit-changeit-changeit-changeit
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: miniopassword
@@ -133,3 +145,5 @@ services:
 volumes:
   postgres-data:
   minio-data:
+  pgadmin-data:
+

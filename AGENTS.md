@@ -123,13 +123,19 @@
 - [x] FR-001: All external APIs are versioned (`/api/v1/...`) (foundation baseline)
 - [x] FR-002: Standardized error payload (`code`, `message`, `details`, `traceId`) (foundation baseline)
 - [x] FR-003: Request validation and input sanitization at API boundaries (foundation baseline)
-- [ ] FR-004: Auth enforced for all non-public routes (baseline security config in place; JWT flow pending)
+- [x] FR-004: Auth enforced for all non-public routes (JWT resource server with bearer token validation)
 - [x] FR-005: Service health endpoints exposed for liveness/readiness (actuator probes configured)
 - [x] FR-006: Event schemas are versioned and backward compatible (envelope + version fields baseline)
 - [ ] FR-007: Event consumers are idempotent (pending consumer implementation)
 - [ ] FR-008: Observability baseline: structured logs, metrics, traces (partial baseline; tracing/log correlation pending)
+- [x] FR-101: User registration and profile management (registration with PostgreSQL persistence baseline)
+- [x] FR-102: JWT-based login/session flow (login endpoint issuing JWT access token)
+- [ ] FR-103: OAuth2-compatible auth extension path (pending)
+- [ ] FR-104: Follow/unfollow artist endpoints (pending)
+- [ ] FR-105: Playlist create/read/update/delete (pending)
+- [ ] FR-106: User preference management (pending)
 
 ### Next item in queue
-1. Complete FR-004 by adding JWT-based auth flow in `user-service` and enforcing bearer token on protected endpoints.
-2. Finish FR-008 by adding trace propagation and common logging/metrics conventions.
-3. Start User Service FR-101 (real registration + persistence).
+1. Implement FR-103 OAuth2-compatible extension path in `user-service`.
+2. Implement FR-104 follow/unfollow artist endpoints.
+3. Implement FR-105 playlist CRUD and FR-106 preference management.

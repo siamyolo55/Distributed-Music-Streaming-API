@@ -51,11 +51,19 @@ curl -X POST http://localhost:8081/api/v1/public/users/register \
   -d "{\"email\":\"test@example.com\",\"password\":\"pass123\",\"displayName\":\"Test User\"}"
 ```
 
-Protected endpoint (Basic auth for current scaffold):
+Login to get JWT:
+
+```bash
+curl -X POST http://localhost:8081/api/v1/public/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"test@example.com\",\"password\":\"pass123\"}"
+```
+
+Protected endpoint (Bearer token):
 
 ```bash
 curl -X POST http://localhost:8082/api/v1/media/tracks \
-  -u admin:admin123 \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
   -H "Content-Type: application/json" \
   -d "{\"title\":\"Song A\",\"artistId\":\"artist-1\"}"
 ```

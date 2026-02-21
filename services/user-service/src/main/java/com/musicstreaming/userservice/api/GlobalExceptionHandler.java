@@ -3,6 +3,7 @@ package com.musicstreaming.userservice.api;
 import com.musicstreaming.common.observability.TraceSupport;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,6 +27,22 @@ public class GlobalExceptionHandler {
                 .map(v -> v.getPropertyPath() + " " + v.getMessage())
                 .toList();
         return ResponseEntity.badRequest().body(new ErrorResponse("VALIDATION_ERROR", "Validation failed", details, TraceSupport.newTraceId()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        HttpStatus status = ex.getMessage() != null && ex.getMessage().contains("Invalid credentials")
+                ? HttpStatus.UNAUTHORIZED
+                : HttpStatus.CONFLICT;
+        String code = status == HttpStatus.UNAUTHORIZED ? "AUTHENTICATION_FAILED" : "CONFLICT";
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(code, ex.getMessage(), List.of(), TraceSupport.newTraceId()));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("CONFLICT", "Data integrity violation", List.of(), TraceSupport.newTraceId()));
     }
 
     @ExceptionHandler(Exception.class)

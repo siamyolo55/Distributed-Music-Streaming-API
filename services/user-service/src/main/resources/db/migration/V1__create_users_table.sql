@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY,
+    email VARCHAR(320) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    display_name VARCHAR(120) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL
+);
