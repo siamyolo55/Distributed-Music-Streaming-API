@@ -1,0 +1,110 @@
+# Agent Context Memory — Distributed Music Streaming API
+
+## Project stack snapshot
+- Language/runtime: Java 21
+- Framework: Spring Boot 3.x (Web, WebFlux, Security, Data JPA, Kafka, Actuator)
+- Architecture: Microservices + event-driven design (Kafka backbone)
+- Data/storage: PostgreSQL (OLTP), Redis (cache/session), MinIO (object storage for media)
+- Infra: Docker Compose, service-level Dockerfiles, health checks
+- Reliability/ops: Resilience4j, idempotent consumers, DLQ/retries, observability (Micrometer, Prometheus, OpenTelemetry)
+- Tooling/testing: Maven/Gradle, Flyway, JUnit 5, Mockito, AssertJ, Testcontainers, JaCoCo, static analysis (Checkstyle/PMD/SpotBugs)
+
+## One-by-one execution plan
+
+### Phase A — Foundation (Milestone 0)
+1. Create monorepo folders: `services`, `libs`, `infra`.
+2. Initialize baseline services (`user-service`, `media-service`) and shared libs (`common-events`, `common-security`, `common-observability`).
+3. Add root `docker-compose.yml` with PostgreSQL, Redis, Kafka(+Zookeeper or Redpanda), MinIO.
+4. Add service Dockerfiles (multi-stage), env-driven configs, and `/actuator/health` probes.
+5. Set up CI to run build, unit tests, static checks, and coverage report.
+6. Define initial OpenAPI conventions, error response contract, and API versioning standards.
+
+### Phase B — User + Media (Milestone 1)
+7. Implement user registration/login/profile APIs.
+8. Add JWT auth and authorization guards on non-public endpoints.
+9. Implement follow/unfollow, playlist CRUD, and user preferences APIs.
+10. Implement media upload endpoint for admin/artist roles.
+11. Persist track metadata and object storage references.
+12. Publish `TrackUploaded` event to Kafka with schema/version metadata.
+
+### Phase C — Streaming + Event Backbone (Milestone 2)
+13. Implement manifest/chunk retrieval endpoints in `streaming-service` (WebFlux).
+14. Generate secure signed streaming URLs.
+15. Add Redis caching for hot manifests and frequently streamed assets.
+16. Emit playback lifecycle events: started, paused/resumed, skipped, completed.
+17. Record listen duration/session behavior and publish to event topics.
+
+### Phase D — Recommendations + Analytics (Milestone 3)
+18. Implement recommendation consumers for playback events.
+19. Build recommendation APIs: "because you listened to X" and trending by time window.
+20. Implement analytics consumers/materialized tables.
+21. Build analytics APIs: skip rates, active users/minute, trending artists, play-through rates.
+22. Add cache layer for high-QPS analytics reads.
+
+### Phase E — Production Hardening (Milestone 4)
+23. Add resilience patterns (retry, circuit breaker, DLQ) for all async integrations.
+24. Enforce idempotency for every event consumer using deduplication strategy.
+25. Add tracing/metrics/log correlation and dashboards with SLO-focused views.
+26. Validate partition strategy and load-test critical paths.
+27. Add replay/backfill tooling for operational recovery.
+
+## Functional requirements checklist
+
+### Platform-wide (cross-cutting)
+- FR-001: All external APIs are versioned (`/api/v1/...`).
+- FR-002: Standardized error payload (`code`, `message`, `details`, `traceId`).
+- FR-003: Request validation and input sanitization at API boundaries.
+- FR-004: Auth enforced for all non-public routes.
+- FR-005: Service health endpoints exposed for liveness/readiness.
+- FR-006: Event schemas are versioned and backward compatible.
+- FR-007: Event consumers are idempotent.
+- FR-008: Observability baseline: structured logs, metrics, traces.
+
+### User Service
+- FR-101: User registration and profile management.
+- FR-102: JWT-based login/session flow.
+- FR-103: OAuth2-compatible auth extension path.
+- FR-104: Follow/unfollow artist endpoints.
+- FR-105: Playlist create/read/update/delete.
+- FR-106: User preference management.
+
+### Media Service
+- FR-201: Upload track binary (admin/artist authorized).
+- FR-202: Store metadata (title, artist, album, duration, bitrate, storage path).
+- FR-203: Trigger async transcoding workflow via messaging.
+- FR-204: Produce quality-variant/chunk manifests.
+- FR-205: Emit `TrackUploaded` events.
+
+### Streaming Service
+- FR-301: Serve chunked audio stream endpoints.
+- FR-302: Generate signed stream URLs.
+- FR-303: Publish playback lifecycle events.
+- FR-304: Record listen duration and session behavior.
+- FR-305: Cache hot manifests/tracks in Redis.
+
+### Recommendation Service
+- FR-401: Consume playback events and aggregate user-track affinity.
+- FR-402: Provide "because you listened to X" recommendations.
+- FR-403: Provide trending tracks within configurable windows.
+- FR-404: Support baseline collaborative-filtering strategy.
+
+### Analytics Service
+- FR-501: Compute top skipped tracks.
+- FR-502: Compute trending artists.
+- FR-503: Compute active users per minute.
+- FR-504: Compute play-through rate metrics.
+- FR-505: Expose dashboard-ready analytics APIs.
+
+## Delivery order to execute requirements
+1. Complete FR-001..FR-008 framework-wide defaults.
+2. Complete User Service FR-101..FR-106.
+3. Complete Media Service FR-201..FR-205.
+4. Complete Streaming Service FR-301..FR-305.
+5. Complete Recommendation Service FR-401..FR-404.
+6. Complete Analytics Service FR-501..FR-505.
+7. Finish resilience/performance hardening + load validation.
+
+## Working agreement for next iterations
+- Implement in small PRs (one service capability at a time).
+- Every PR includes tests, OpenAPI updates, and event-contract updates when applicable.
+- No feature considered done without observability + security checks.
