@@ -1,5 +1,6 @@
 package com.musicstreaming.userservice.api;
 
+import com.musicstreaming.userservice.api.model.RegistrationStatus;
 import com.musicstreaming.userservice.service.UserAuthService;
 import com.musicstreaming.userservice.service.UserAuthService.RegisteredUser;
 import jakarta.validation.Valid;
@@ -26,7 +27,7 @@ public class UserController {
     public ResponseEntity<UserRegistrationResponse> register(@Valid @RequestBody UserRegistrationRequest request) {
         RegisteredUser user = userAuthService.register(request.email(), request.password(), request.displayName());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new UserRegistrationResponse(user.id().toString(), user.email(), "CREATED"));
+                .body(new UserRegistrationResponse(user.id().toString(), user.email(), RegistrationStatus.CREATED.name()));
     }
 
     public record UserRegistrationRequest(

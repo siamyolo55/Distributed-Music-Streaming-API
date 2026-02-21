@@ -1,5 +1,6 @@
 package com.musicstreaming.userservice.api;
 
+import com.musicstreaming.userservice.api.model.TokenType;
 import com.musicstreaming.userservice.config.JwtTokenService;
 import com.musicstreaming.userservice.service.UserAuthService;
 import com.musicstreaming.userservice.service.UserAuthService.AuthenticatedUser;
@@ -28,7 +29,7 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthenticatedUser user = userAuthService.authenticate(request.email(), request.password());
         String token = jwtTokenService.issueToken(user);
-        return ResponseEntity.ok(new LoginResponse(token, "Bearer"));
+        return ResponseEntity.ok(new LoginResponse(token, TokenType.BEARER.value()));
     }
 
     public record LoginRequest(
