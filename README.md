@@ -26,6 +26,7 @@ docker compose up --build
 ```
 
 Services and ports:
+- Demo Frontend: `http://localhost:8080`
 - User Service: `http://localhost:8081`
 - Media Service: `http://localhost:8082`
 - PostgreSQL: `localhost:5432`
@@ -42,7 +43,23 @@ curl http://localhost:8081/actuator/health
 curl http://localhost:8082/actuator/health
 ```
 
-### 4) Try current APIs
+### 4) Use the demo frontend (recommended)
+
+Open `http://localhost:8080` and test:
+- register user
+- login and store JWT in page state
+- follow/unfollow another user
+- upload an audio file and play it back from local storage URL
+
+If you need custom frontend origins, configure:
+- `CORS_ALLOWED_ORIGINS` for `user-service`
+- `CORS_ALLOWED_ORIGINS` for `media-service`
+
+Default allowed origins:
+- `http://localhost:8080`
+- `http://127.0.0.1:8080`
+
+### 5) Try current APIs via curl
 
 Public endpoint (no auth):
 
@@ -90,13 +107,13 @@ curl http://localhost:8081/api/v1/users/me/follows \
   -H "Authorization: Bearer <ACCESS_TOKEN>"
 ```
 
-### 5) Stop stack
+### 6) Stop stack
 
 ```bash
 docker compose down
 ```
 
-### 6) Inspect PostgreSQL with pgAdmin
+### 7) Inspect PostgreSQL with pgAdmin
 
 - URL: `http://localhost:5050`
 - Email: `admin@example.com`

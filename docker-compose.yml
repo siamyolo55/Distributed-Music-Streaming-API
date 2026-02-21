@@ -147,6 +147,19 @@ services:
     volumes:
       - media-files:/data/media
 
+  demo-frontend:
+    image: nginx:1.27-alpine
+    container_name: dmsa-demo-frontend
+    volumes:
+      - ./infra/demo-ui:/usr/share/nginx/html:ro
+    depends_on:
+      user-service:
+        condition: service_started
+      media-service:
+        condition: service_started
+    ports:
+      - "8080:80"
+
 volumes:
   postgres-data:
   minio-data:

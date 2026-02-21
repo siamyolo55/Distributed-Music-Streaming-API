@@ -143,6 +143,8 @@
 - Follow/unfollow now models user-to-user relationships with `user_follows` (`V3__create_user_follows_table.sql`) and ownership-safe operations.
 - Playlist CRUD added with persistence in `playlists` (`V4__create_playlists_table.sql`) and endpoints under `/api/v1/users/me/playlists`.
 - Media upload now supports multipart audio ingestion with pluggable storage (`MediaObjectStorage`) and a local filesystem-backed server (`/local-media/**`) for dev.
+- Added minimal demo frontend (`infra/demo-ui`, served on `http://localhost:8080` via Docker Compose) to exercise register/login/follow/upload flows visually.
+- Added shared CORS configuration in `common-security` with configurable allowed origins (`security.cors.allowed-origins`) and defaults for local frontend development.
 
 ### Next item in queue
 1. Implement FR-103 OAuth2-compatible extension path in `user-service`.

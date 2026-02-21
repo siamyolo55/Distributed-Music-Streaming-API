@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DMSA Demo UI</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #112233;
+      --muted: #5c6b7a;
+      --accent: #0f766e;
+      --line: #d8dde3;
+      --error: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #eef4f8 0%, var(--bg) 45%, #ecf5f3 100%);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .subtitle { margin: 0 0 20px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 22px rgba(0, 20, 40, 0.04);
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+    label {
+      display: block;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    input, button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    input[type="file"] {
+      padding: 8px;
+      background: #fafbfc;
+    }
+    button {
+      margin-top: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { filter: brightness(0.95); }
+    .inline {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+    .status {
+      margin-top: 16px;
+      background: #0b1220;
+      color: #d4e4ff;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      min-height: 160px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .token-box {
+      margin-top: 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      background: #f7fafc;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      max-height: 74px;
+      overflow: auto;
+    }
+    .hint {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .error { color: var(--error); }
+    audio { width: 100%; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Distributed Music API Demo</h1>
+    <p class="subtitle">Register, login, follow users, and upload/play audio from local media storage.</p>
+
+    <div class="grid">
+      <section class="card">
+        <h2>1) Register User</h2>
+        <label for="regEmail">Email</label>
+        <input id="regEmail" type="email" placeholder="artist1@example.com">
+        <label for="regPassword">Password</label>
+        <input id="regPassword" type="password" value="pass123">
+        <label for="regDisplayName">Display Name</label>
+        <input id="regDisplayName" type="text" placeholder="Artist One">
+        <button id="registerBtn">Register</button>
+      </section>
+
+      <section class="card">
+        <h2>2) Login</h2>
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" placeholder="artist1@example.com">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" value="pass123">
+        <button id="loginBtn">Login</button>
+        <div class="hint">JWT token is stored in this page state.</div>
+        <div id="tokenBox" class="token-box">No token yet</div>
+      </section>
+
+      <section class="card">
+        <h2>3) Follow User</h2>
+        <label for="targetUserId">Target User ID</label>
+        <input id="targetUserId" type="text" placeholder="UUID of user to follow">
+        <div class="inline">
+          <button id="followBtn">Follow</button>
+          <button id="unfollowBtn">Unfollow</button>
+        </div>
+        <button id="listFollowsBtn">List My Follows</button>
+      </section>
+
+      <section class="card">
+        <h2>4) Upload Music</h2>
+        <label for="trackTitle">Track Title</label>
+        <input id="trackTitle" type="text" placeholder="My Song">
+        <label for="artistId">Artist/User ID</label>
+        <input id="artistId" type="text" placeholder="UUID from register response">
+        <label for="trackFile">Audio File</label>
+        <input id="trackFile" type="file" accept="audio/*">
+        <button id="uploadBtn">Upload Track</button>
+        <audio id="player" controls></audio>
+      </section>
+    </div>
+
+    <div id="status" class="status">Ready.</div>
+  </div>
+
+  <script>
+    const API_USER = "http://localhost:8081";
+    const API_MEDIA = "http://localhost:8082";
+    let token = "";
+
+    const statusEl = document.getElementById("status");
+    const tokenBox = document.getElementById("tokenBox");
+    const player = document.getElementById("player");
+
+    const show = (label, obj) => {
+      const payload = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
+      statusEl.textContent = "[" + new Date().toISOString() + "] " + label + "\n" + payload;
+    };
+
+    const authHeaders = () => token ? { Authorization: "Bearer " + token } : {};
+
+    async function parseResponse(res) {
+      const text = await res.text();
+      let body = text;
+      try { body = text ? JSON.parse(text) : {}; } catch (e) {}
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status + " " + JSON.stringify(body));
+      }
+      return body;
+    }
+
+    document.getElementById("registerBtn").addEventListener("click", async () => {
+      const payload = {
+        email: document.getElementById("regEmail").value.trim(),
+        password: document.getElementById("regPassword").value,
+        displayName: document.getElementById("regDisplayName").value.trim()
+      };
+      try {
+        const res = await fetch(API_USER + "/api/v1/public/users/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const body = await parseResponse(res);
+        show("REGISTER OK", body);
+        if (body.userId) {
+          document.getElementById("artistId").value = body.userId;
+        }
+      } catch (err) {
+        show("REGISTER FAILED", String(err));
+      }
+    });
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const payload = {
+        email: document.getElementById("loginEmail").value.trim(),
+        password: document.getElementById("loginPassword").value
+      };
+      try {
+        const res = await fetch(API_USER + "/api/v1/public/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const body = await parseResponse(res);
+        token = body.accessToken || "";
+        tokenBox.textContent = token ? (token.slice(0, 70) + "...") : "No token";
+        show("LOGIN OK", body);
+      } catch (err) {
+        show("LOGIN FAILED", String(err));
+      }
+    });
+
+    document.getElementById("followBtn").addEventListener("click", async () => {
+      const targetUserId = document.getElementById("targetUserId").value.trim();
+      try {
+        const res = await fetch(API_USER + "/api/v1/users/me/follows/" + encodeURIComponent(targetUserId), {
+          method: "POST",
+          headers: { ...authHeaders() }
+        });
+        show("FOLLOW OK", await parseResponse(res));
+      } catch (err) {
+        show("FOLLOW FAILED", String(err));
+      }
+    });
+
+    document.getElementById("unfollowBtn").addEventListener("click", async () => {
+      const targetUserId = document.getElementById("targetUserId").value.trim();
+      try {
+        const res = await fetch(API_USER + "/api/v1/users/me/follows/" + encodeURIComponent(targetUserId), {
+          method: "DELETE",
+          headers: { ...authHeaders() }
+        });
+        if (!res.ok && res.status !== 204) {
+          await parseResponse(res);
+        }
+        show("UNFOLLOW OK", "HTTP " + res.status);
+      } catch (err) {
+        show("UNFOLLOW FAILED", String(err));
+      }
+    });
+
+    document.getElementById("listFollowsBtn").addEventListener("click", async () => {
+      try {
+        const res = await fetch(API_USER + "/api/v1/users/me/follows", {
+          method: "GET",
+          headers: { ...authHeaders() }
+        });
+        show("LIST FOLLOWS OK", await parseResponse(res));
+      } catch (err) {
+        show("LIST FOLLOWS FAILED", String(err));
+      }
+    });
+
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      const title = document.getElementById("trackTitle").value.trim();
+      const artistId = document.getElementById("artistId").value.trim();
+      const fileInput = document.getElementById("trackFile");
+      if (!fileInput.files || !fileInput.files.length) {
+        show("UPLOAD FAILED", "Select an audio file first.");
+        return;
+      }
+      const form = new FormData();
+      form.append("title", title);
+      form.append("artistId", artistId);
+      form.append("file", fileInput.files[0]);
+      try {
+        const res = await fetch(API_MEDIA + "/api/v1/media/tracks", {
+          method: "POST",
+          headers: { ...authHeaders() },
+          body: form
+        });
+        const body = await parseResponse(res);
+        show("UPLOAD OK", body);
+
+        const storagePath = body && body.payload ? body.payload.storagePath : null;
+        if (storagePath) {
+          player.src = API_MEDIA + storagePath;
+          player.load();
+        }
+      } catch (err) {
+        show("UPLOAD FAILED", String(err));
+      }
+    });
+  </script>
+</body>
+</html>
