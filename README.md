@@ -29,6 +29,7 @@ Services and ports:
 - User Service: `http://localhost:8081`
 - Media Service: `http://localhost:8082`
 - PostgreSQL: `localhost:5432`
+- pgAdmin: `http://localhost:5050`
 - Redis: `localhost:6379`
 - Redpanda (Kafka API): `localhost:9092`
 - MinIO API: `http://localhost:9000`
@@ -73,6 +74,19 @@ curl -X POST http://localhost:8082/api/v1/media/tracks \
 ```bash
 docker compose down
 ```
+
+### 6) Inspect PostgreSQL with pgAdmin
+
+- URL: `http://localhost:5050`
+- Email: `admin@example.com`
+- Password: `admin123`
+
+Register server in pgAdmin:
+- Host: `postgres`
+- Port: `5432`
+- Database: `music`
+- Username: `music`
+- Password: `music`
 
 ---
 
@@ -349,8 +363,12 @@ Implemented now:
 1. Root multi-module Maven project
 2. `services/user-service` and `services/media-service`
 3. Shared libs: `common-events`, `common-security`, `common-observability`
-4. Root `docker-compose.yml` with Postgres/Redis/Redpanda/MinIO and both services
-5. Baseline API conventions (`/api/v1` + standard error contract) and CI workflow
+4. Root `docker-compose.yml` with Postgres/Redis/Redpanda/MinIO/pgAdmin and both services
+5. DB-backed user registration (`users` table via Flyway migration)
+6. JWT login endpoint and bearer-token auth for protected routes
+7. Baseline API conventions (`/api/v1` + standard error contract) and CI workflow
 
 Next step:
-1. Implement JWT auth flow (FR-004, FR-102) and move protected endpoints from Basic auth to bearer tokens.
+1. Implement FR-103 OAuth2-compatible extension path.
+2. Implement FR-104 follow/unfollow artist endpoints.
+3. Implement FR-105 playlist CRUD and FR-106 user preferences.

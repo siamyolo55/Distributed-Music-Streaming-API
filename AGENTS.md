@@ -135,6 +135,12 @@
 - [ ] FR-105: Playlist create/read/update/delete (pending)
 - [ ] FR-106: User preference management (pending)
 
+### Recently completed implementation details
+- User registration now persists to PostgreSQL `users` table using JPA + Flyway migration (`V1__create_users_table.sql`).
+- Login endpoint implemented at `/api/v1/public/auth/login`, issuing JWT bearer tokens.
+- Shared security moved to JWT resource-server validation for non-public routes.
+- Added `pgadmin` service in `docker-compose.yml` for DB inspection (`http://localhost:5050`).
+
 ### Next item in queue
 1. Implement FR-103 OAuth2-compatible extension path in `user-service`.
 2. Implement FR-104 follow/unfollow artist endpoints.
