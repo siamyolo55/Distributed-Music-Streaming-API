@@ -10,28 +10,28 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "artist_follows")
-public class ArtistFollow {
+@Table(name = "user_follows")
+public class UserFollow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @Column(name = "follower_user_id", nullable = false)
+    private UUID followerUserId;
 
-    @Column(name = "artist_id", nullable = false, length = 120)
-    private String artistId;
+    @Column(name = "target_user_id", nullable = false)
+    private UUID targetUserId;
 
     @Column(nullable = false)
     private Instant createdAt;
 
-    protected ArtistFollow() {
+    protected UserFollow() {
     }
 
-    public ArtistFollow(UUID userId, String artistId, Instant createdAt) {
-        this.userId = userId;
-        this.artistId = artistId;
+    public UserFollow(UUID followerUserId, UUID targetUserId, Instant createdAt) {
+        this.followerUserId = followerUserId;
+        this.targetUserId = targetUserId;
         this.createdAt = createdAt;
     }
 
@@ -39,12 +39,12 @@ public class ArtistFollow {
         return id;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public UUID getFollowerUserId() {
+        return followerUserId;
     }
 
-    public String getArtistId() {
-        return artistId;
+    public UUID getTargetUserId() {
+        return targetUserId;
     }
 
     public Instant getCreatedAt() {

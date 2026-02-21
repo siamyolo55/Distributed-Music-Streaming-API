@@ -3,8 +3,7 @@ package com.musicstreaming.userservice.api;
 import com.musicstreaming.userservice.api.model.FollowStatus;
 import com.musicstreaming.userservice.service.UserFollowService;
 import com.musicstreaming.userservice.service.UserFollowService.FollowResult;
-import com.musicstreaming.userservice.service.UserFollowService.FollowedArtist;
-import jakarta.validation.constraints.NotBlank;
+import com.musicstreaming.userservice.service.UserFollowService.FollowedUser;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -29,32 +28,32 @@ public class UserFollowController {
         this.userFollowService = userFollowService;
     }
 
-    @PostMapping("/{artistId}")
-    public ResponseEntity<FollowResponse> followArtist(
+    @PostMapping("/{targetUserId}")
+    public ResponseEntity<FollowResponse> followUser(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable("artistId") @NotBlank(message = "must not be blank") String artistId) {
+            @PathVariable("targetUserId") UUID targetUserId) {
         UUID userId = userIdFromJwt(jwt);
-        FollowResult result = userFollowService.followArtist(userId, artistId);
+        FollowResult result = userFollowService.followUser(userId, targetUserId);
         FollowStatus followStatus = result.created() ? FollowStatus.FOLLOWED : FollowStatus.ALREADY_FOLLOWING;
-        FollowResponse response = new FollowResponse(result.artistId(), followStatus.name());
+        FollowResponse response = new FollowResponse(result.targetUserId().toString(), followStatus.name());
         HttpStatus status = result.created() ? HttpStatus.CREATED : HttpStatus.OK;
         return ResponseEntity.status(status).body(response);
     }
 
-    @DeleteMapping("/{artistId}")
-    public ResponseEntity<Void> unfollowArtist(
+    @DeleteMapping("/{targetUserId}")
+    public ResponseEntity<Void> unfollowUser(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable("artistId") @NotBlank(message = "must not be blank") String artistId) {
+            @PathVariable("targetUserId") UUID targetUserId) {
         UUID userId = userIdFromJwt(jwt);
-        userFollowService.unfollowArtist(userId, artistId);
+        userFollowService.unfollowUser(userId, targetUserId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<FollowedArtistResponse>> listFollowedArtists(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<List<FollowedUserResponse>> listFollowedUsers(@AuthenticationPrincipal Jwt jwt) {
         UUID userId = userIdFromJwt(jwt);
-        List<FollowedArtistResponse> response = userFollowService.listFollowedArtists(userId).stream()
-                .map(f -> new FollowedArtistResponse(f.artistId(), f.followedAt()))
+        List<FollowedUserResponse> response = userFollowService.listFollowedUsers(userId).stream()
+                .map(f -> new FollowedUserResponse(f.targetUserId().toString(), f.followedAt()))
                 .toList();
         return ResponseEntity.ok(response);
     }
@@ -67,9 +66,9 @@ public class UserFollowController {
         }
     }
 
-    public record FollowResponse(String artistId, String status) {
+    public record FollowResponse(String targetUserId, String status) {
     }
 
-    public record FollowedArtistResponse(String artistId, java.time.Instant followedAt) {
+    public record FollowedUserResponse(String targetUserId, java.time.Instant followedAt) {
     }
 }
