@@ -64,7 +64,7 @@
 - FR-101: User registration and profile management.
 - FR-102: JWT-based login/session flow.
 - FR-103: OAuth2-compatible auth extension path.
-- FR-104: Follow/unfollow artist endpoints.
+- FR-104: Follow/unfollow user endpoints.
 - FR-105: Playlist create/read/update/delete.
 - FR-106: User preference management.
 
@@ -131,8 +131,8 @@
 - [x] FR-101: User registration and profile management (registration with PostgreSQL persistence baseline)
 - [x] FR-102: JWT-based login/session flow (login endpoint issuing JWT access token)
 - [ ] FR-103: OAuth2-compatible auth extension path (pending)
-- [x] FR-104: Follow/unfollow artist endpoints (`POST/DELETE/GET /api/v1/users/me/follows`)
-- [ ] FR-105: Playlist create/read/update/delete (pending)
+- [x] FR-104: Follow/unfollow user endpoints (`POST/DELETE/GET /api/v1/users/me/follows/{targetUserId}`)
+- [x] FR-105: Playlist create/read/update/delete (`/api/v1/users/me/playlists`)
 - [ ] FR-106: User preference management (pending)
 
 ### Recently completed implementation details
@@ -140,9 +140,10 @@
 - Login endpoint implemented at `/api/v1/public/auth/login`, issuing JWT bearer tokens.
 - Shared security moved to JWT resource-server validation for non-public routes.
 - Added `pgadmin` service in `docker-compose.yml` for DB inspection (`http://localhost:5050`).
-- Follow/unfollow artist flow added with persistence in `artist_follows` (`V2__create_artist_follows_table.sql`).
+- Follow/unfollow now models user-to-user relationships with `user_follows` (`V3__create_user_follows_table.sql`) and ownership-safe operations.
+- Playlist CRUD added with persistence in `playlists` (`V4__create_playlists_table.sql`) and endpoints under `/api/v1/users/me/playlists`.
 
 ### Next item in queue
 1. Implement FR-103 OAuth2-compatible extension path in `user-service`.
-2. Implement FR-105 playlist CRUD.
-3. Implement FR-106 user preference management.
+2. Implement FR-106 user preference management.
+3. Expand playlist API with track-item management (`playlist_tracks`) and contract docs.

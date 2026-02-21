@@ -69,14 +69,14 @@ curl -X POST http://localhost:8082/api/v1/media/tracks \
   -d "{\"title\":\"Song A\",\"artistId\":\"artist-1\"}"
 ```
 
-Follow an artist (protected):
+Follow a user (protected):
 
 ```bash
-curl -X POST http://localhost:8081/api/v1/users/me/follows/artist-1 \
+curl -X POST http://localhost:8081/api/v1/users/me/follows/<TARGET_USER_ID> \
   -H "Authorization: Bearer <ACCESS_TOKEN>"
 ```
 
-List followed artists (protected):
+List followed users (protected):
 
 ```bash
 curl http://localhost:8081/api/v1/users/me/follows \
@@ -123,7 +123,7 @@ Build a microservices-based music streaming platform that demonstrates:
 **Responsibilities**
 - User registration and profile management
 - Authentication & authorization (**JWT + OAuth2**)
-- Follow/unfollow artists
+- Follow/unfollow users
 - Playlist CRUD
 - User preferences (genres, language, personalized settings)
 
@@ -380,10 +380,11 @@ Implemented now:
 4. Root `docker-compose.yml` with Postgres/Redis/Redpanda/MinIO/pgAdmin and both services
 5. DB-backed user registration (`users` table via Flyway migration)
 6. JWT login endpoint and bearer-token auth for protected routes
-7. Follow/unfollow artist capability (FR-104) backed by `artist_follows` table
-8. Baseline API conventions (`/api/v1` + standard error contract) and CI workflow
+7. Follow/unfollow user capability (FR-104) backed by `user_follows` table
+8. Playlist CRUD capability (FR-105) backed by `playlists` table
+9. Baseline API conventions (`/api/v1` + standard error contract) and CI workflow
 
 Next step:
 1. Implement FR-103 OAuth2-compatible extension path.
-2. Implement FR-105 playlist CRUD.
-3. Implement FR-106 user preferences.
+2. Implement FR-106 user preferences.
+3. Expand playlist API with playlist-items/track membership.
