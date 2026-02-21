@@ -388,3 +388,4 @@ Next step:
 1. Implement FR-103 OAuth2-compatible extension path.
 2. Implement FR-106 user preferences.
 3. Expand playlist API with playlist-items/track membership.
+4. Sequence dependency: complete media track creation/persistence first (FR-201/FR-202), then attach tracks to playlists using stable `trackId`.

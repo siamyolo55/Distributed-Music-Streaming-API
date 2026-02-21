@@ -147,3 +147,4 @@
 1. Implement FR-103 OAuth2-compatible extension path in `user-service`.
 2. Implement FR-106 user preference management.
 3. Expand playlist API with track-item management (`playlist_tracks`) and contract docs.
+4. Dependency note: implement playlist track membership only after media track creation/persistence is finalized (FR-201 + FR-202) so playlist items can reference stable `trackId`.
