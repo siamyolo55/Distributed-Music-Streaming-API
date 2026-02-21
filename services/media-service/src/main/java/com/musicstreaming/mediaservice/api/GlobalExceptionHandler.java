@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -26,6 +27,14 @@ public class GlobalExceptionHandler {
                 .map(v -> v.getPropertyPath() + " " + v.getMessage())
                 .toList();
         return ResponseEntity.badRequest().body(new ErrorResponse("VALIDATION_ERROR", "Validation failed", details, TraceSupport.newTraceId()));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException ex) {
+        String message = ex.getReason() != null ? ex.getReason() : "Request failed";
+        String code = ex.getStatusCode() instanceof HttpStatus status ? status.name() : "REQUEST_FAILED";
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(new ErrorResponse(code, message, List.of(), TraceSupport.newTraceId()));
     }
 
     @ExceptionHandler(Exception.class)

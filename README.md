@@ -65,8 +65,15 @@ Protected endpoint (Bearer token):
 ```bash
 curl -X POST http://localhost:8082/api/v1/media/tracks \
   -H "Authorization: Bearer <ACCESS_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d "{\"title\":\"Song A\",\"artistId\":\"artist-1\"}"
+  -F "title=Song A" \
+  -F "artistId=artist-1" \
+  -F "file=@/absolute/path/to/song.mp3;type=audio/mpeg"
+```
+
+Uploaded files are available from the local media file server path:
+
+```bash
+curl http://localhost:8082/local-media/raw/<artistId>/<generated-file>.mp3
 ```
 
 Follow a user (protected):

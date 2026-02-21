@@ -130,6 +130,9 @@ services:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: miniopassword
+      MEDIA_STORAGE_TYPE: local
+      MEDIA_LOCAL_ROOT: /data/media
+      MEDIA_LOCAL_PUBLIC_BASE_URL: http://localhost:8082/local-media
     depends_on:
       postgres:
         condition: service_healthy
@@ -141,9 +144,12 @@ services:
         condition: service_healthy
     ports:
       - "8082:8082"
+    volumes:
+      - media-files:/data/media
 
 volumes:
   postgres-data:
   minio-data:
   pgadmin-data:
+  media-files:
 

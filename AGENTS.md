@@ -142,6 +142,7 @@
 - Added `pgadmin` service in `docker-compose.yml` for DB inspection (`http://localhost:5050`).
 - Follow/unfollow now models user-to-user relationships with `user_follows` (`V3__create_user_follows_table.sql`) and ownership-safe operations.
 - Playlist CRUD added with persistence in `playlists` (`V4__create_playlists_table.sql`) and endpoints under `/api/v1/users/me/playlists`.
+- Media upload now supports multipart audio ingestion with pluggable storage (`MediaObjectStorage`) and a local filesystem-backed server (`/local-media/**`) for dev.
 
 ### Next item in queue
 1. Implement FR-103 OAuth2-compatible extension path in `user-service`.
