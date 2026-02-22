@@ -106,14 +106,21 @@ curl -X POST http://localhost:8082/api/v1/media/tracks \
   -H "Authorization: Bearer <ACCESS_TOKEN>" \
   -F "title=Song A" \
   -F "artistId=artist-1" \
+  -F "artistName=Artist One" \
+  -F "genre=Pop" \
   -F "file=@/absolute/path/to/song.mp3;type=audio/mpeg"
 ```
 
-Uploaded files are available from the local media file server path:
+List uploaded tracks metadata:
 
 ```bash
-curl http://localhost:8082/local-media/raw/<artistId>/<generated-file>.mp3
+curl http://localhost:8082/api/v1/media/tracks \
+  -H "Authorization: Bearer <ACCESS_TOKEN>"
 ```
+
+Current mock mode note:
+- upload currently persists track metadata to DB and stores a configurable dummy `fileUrl`
+- real per-upload persistent media storage can be re-enabled later
 
 Follow a user (protected):
 

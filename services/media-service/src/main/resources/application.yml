@@ -13,7 +13,8 @@ spring:
       ddl-auto: validate
     open-in-view: false
   flyway:
-    enabled: false
+    enabled: true
+    table: media_service_schema_history
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
@@ -40,6 +41,8 @@ springdoc:
     path: /swagger-ui.html
 
 media:
+  mock:
+    file-url: ${MEDIA_MOCK_FILE_URL:https://samplelib.com/lib/preview/mp3/sample-3s.mp3}
   storage:
     type: ${MEDIA_STORAGE_TYPE:local}
     local:

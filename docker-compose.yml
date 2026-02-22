@@ -133,6 +133,7 @@ services:
       MEDIA_STORAGE_TYPE: local
       MEDIA_LOCAL_ROOT: /data/media
       MEDIA_LOCAL_PUBLIC_BASE_URL: http://localhost:8082/local-media
+      MEDIA_MOCK_FILE_URL: https://samplelib.com/lib/preview/mp3/sample-3s.mp3
     depends_on:
       postgres:
         condition: service_healthy

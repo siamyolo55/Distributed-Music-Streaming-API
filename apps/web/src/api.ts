@@ -1,4 +1,13 @@
 export type JsonRecord = Record<string, unknown>;
+export type TrackItem = {
+  trackId: string;
+  artistId: string;
+  artistName: string;
+  title: string;
+  genre: string;
+  fileUrl: string;
+  createdAt: string;
+};
 
 const userApi = import.meta.env.VITE_USER_API_BASE_URL ?? "http://localhost:8081";
 const mediaApi = import.meta.env.VITE_MEDIA_API_BASE_URL ?? "http://localhost:8082";
@@ -72,18 +81,24 @@ export function listFollows(token: string) {
 }
 
 export async function uploadTrack(
-  payload: { title: string; artistId: string; file: File },
+  payload: { title: string; artistId: string; artistName: string; genre: string; file: File },
   token: string
 ) {
   const form = new FormData();
   form.append("title", payload.title);
   form.append("artistId", payload.artistId);
+  form.append("artistName", payload.artistName);
+  form.append("genre", payload.genre);
   form.append("file", payload.file);
-  return request<{ payload?: { storagePath?: string } }>(
+  return request<{ payload?: { storagePath?: string; trackId?: string } }>(
     `${mediaApi}/api/v1/media/tracks`,
     { method: "POST", body: form },
     token
   );
+}
+
+export function listTracks(token: string) {
+  return request<TrackItem[]>(`${mediaApi}/api/v1/media/tracks`, { method: "GET" }, token);
 }
 
 export function mediaUrl(path: string) {

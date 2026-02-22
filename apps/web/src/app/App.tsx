@@ -4,7 +4,8 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { LoginPage } from "../features/auth/pages/LoginPage";
 import { HomePage } from "../features/home/pages/HomePage";
 import { PlaylistsPage } from "../features/library/pages/PlaylistsPage";
-import { TracksPage } from "../features/library/pages/TracksPage";
+import { TracksListPage } from "../features/library/pages/TracksListPage";
+import { TrackUploadPage } from "../features/library/pages/TrackUploadPage";
 import { FollowingPage } from "../features/social/pages/FollowingPage";
 import { ProfilePage } from "../features/profile/pages/ProfilePage";
 
@@ -23,7 +24,8 @@ export function App() {
         >
           <Route index element={<HomePage />} />
           <Route path="playlists" element={<PlaylistsPage />} />
-          <Route path="tracks" element={<TracksPage />} />
+          <Route path="tracks" element={<TracksListPage />} />
+          <Route path="tracks/upload" element={<TrackUploadPage />} />
           <Route path="following" element={<FollowingPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

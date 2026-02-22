@@ -2,48 +2,80 @@ package com.musicstreaming.mediaservice.track;
 
 import com.musicstreaming.common.events.EventEnvelope;
 import com.musicstreaming.common.events.TrackUploadedEvent;
-import com.musicstreaming.mediaservice.storage.MediaObjectStorage;
-import java.io.IOException;
+import com.musicstreaming.mediaservice.track.domain.TrackRecord;
+import com.musicstreaming.mediaservice.track.domain.TrackRecordRepository;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TrackIngestionService {
 
-    private final MediaObjectStorage mediaObjectStorage;
+    private final TrackRecordRepository trackRecordRepository;
+    private final String mockFileUrl;
 
-    public TrackIngestionService(MediaObjectStorage mediaObjectStorage) {
-        this.mediaObjectStorage = mediaObjectStorage;
+    public TrackIngestionService(
+            TrackRecordRepository trackRecordRepository,
+            @Value("${media.mock.file-url}") String mockFileUrl) {
+        this.trackRecordRepository = trackRecordRepository;
+        this.mockFileUrl = mockFileUrl;
     }
 
-    public EventEnvelope<TrackUploadedEvent> ingest(String title, String artistId, MultipartFile file) {
+    @Transactional
+    public EventEnvelope<TrackUploadedEvent> ingest(
+            String title,
+            String artistId,
+            String artistName,
+            String genre,
+            MultipartFile file) {
         validateFile(file);
 
-        MediaObjectStorage.StoredObject storedObject;
-        try {
-            storedObject = mediaObjectStorage.store(artistId, file);
-        } catch (IOException ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store media file", ex);
-        }
+        String trackId = "trk_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        Instant now = Instant.now();
+
+        trackRecordRepository.save(new TrackRecord(
+                trackId,
+                artistId.trim(),
+                artistName.trim(),
+                title.trim(),
+                genre.trim(),
+                mockFileUrl,
+                now));
 
         TrackUploadedEvent event = new TrackUploadedEvent(
-                "trk_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12),
+                trackId,
                 artistId,
                 title,
-                storedObject.storagePath(),
+                mockFileUrl,
                 "1.0.0"
         );
 
         return new EventEnvelope<>(
                 "TrackUploaded",
                 "1.0.0",
-                Instant.now(),
+                now,
                 event
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<TrackView> listTracks() {
+        return trackRecordRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(t -> new TrackView(
+                        t.getTrackId(),
+                        t.getArtistId(),
+                        t.getArtistName(),
+                        t.getTitle(),
+                        t.getGenre(),
+                        t.getFileUrl(),
+                        t.getCreatedAt()))
+                .toList();
     }
 
     private void validateFile(MultipartFile file) {
