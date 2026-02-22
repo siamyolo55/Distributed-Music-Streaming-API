@@ -16,3 +16,7 @@ Thumbs.db
 # Frontend
 **/node_modules/
 **/dist/
+
+# Media files
+*.mp3
+**/*.mp3

@@ -9,8 +9,9 @@ export type TrackItem = {
   createdAt: string;
 };
 
-const userApi = import.meta.env.VITE_USER_API_BASE_URL ?? "http://localhost:8081";
-const mediaApi = import.meta.env.VITE_MEDIA_API_BASE_URL ?? "http://localhost:8082";
+const defaultApiBase = window.location.origin;
+const userApi = import.meta.env.VITE_USER_API_BASE_URL ?? defaultApiBase;
+const mediaApi = import.meta.env.VITE_MEDIA_API_BASE_URL ?? defaultApiBase;
 
 async function request<T>(
   url: string,
@@ -23,9 +24,17 @@ async function request<T>(
   }
   const response = await fetch(url, { ...init, headers });
   const text = await response.text();
-  const body = text ? JSON.parse(text) : {};
+  let body: unknown = {};
+  if (text) {
+    try {
+      body = JSON.parse(text);
+    } catch {
+      body = text;
+    }
+  }
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${JSON.stringify(body)}`);
+    const details = typeof body === "string" ? body : JSON.stringify(body);
+    throw new Error(`HTTP ${response.status}: ${details}`);
   }
   return body as T;
 }
