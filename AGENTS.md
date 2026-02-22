@@ -147,6 +147,7 @@
 - Added shared CORS configuration in `common-security` with configurable allowed origins (`security.cors.allowed-origins`) and defaults for local frontend development.
 - Added OAuth extension baseline with `user_oauth_accounts` persistence (`V5__create_user_oauth_accounts_table.sql`) and `/api/v1/public/auth/oauth/login` endpoint for provider identity link-or-create and JWT issuance.
 - Added new React app scaffold under `apps/web` (Vite + TypeScript) and wired it in Docker Compose at `http://localhost:8080`.
+- Refactored `apps/web` into scalable feature-based structure with routed pages and persistent auth context (login, home, playlists, tracks, following, profile).
 - Moved legacy `infra/demo-ui` to fallback port `http://localhost:8088` for gradual retirement.
 
 ### Next item in queue
