@@ -143,17 +143,21 @@
 - Follow/unfollow now models user-to-user relationships with `user_follows` (`V3__create_user_follows_table.sql`) and ownership-safe operations.
 - Playlist CRUD added with persistence in `playlists` (`V4__create_playlists_table.sql`) and endpoints under `/api/v1/users/me/playlists`.
 - Media upload now supports multipart audio ingestion with pluggable storage (`MediaObjectStorage`) and a local filesystem-backed server (`/local-media/**`) for dev.
-- Added minimal demo frontend (`infra/demo-ui`, served on `http://localhost:8080` via Docker Compose) to exercise register/login/follow/upload flows visually.
+- Added minimal demo frontend (`infra/demo-ui`, served on `http://localhost:8088` via Docker Compose) as temporary fallback UI.
 - Added shared CORS configuration in `common-security` with configurable allowed origins (`security.cors.allowed-origins`) and defaults for local frontend development.
 - Added OAuth extension baseline with `user_oauth_accounts` persistence (`V5__create_user_oauth_accounts_table.sql`) and `/api/v1/public/auth/oauth/login` endpoint for provider identity link-or-create and JWT issuance.
 - Added new React app scaffold under `apps/web` (Vite + TypeScript) and wired it in Docker Compose at `http://localhost:8080`.
 - Refactored `apps/web` into scalable feature-based structure with routed pages and persistent auth context (login, home, playlists, tracks, following, profile).
 - Track management now supports metadata-backed workflow: upload form captures `title`, `artistName`, `genre`; media-service persists track entries to DB and exposes track listing API for frontend table view.
 - Current track upload mode is intentionally mock-first: metadata is persisted while `fileUrl` uses configurable dummy value (`media.mock.file-url`) until full media persistence is finalized.
+- Added web nginx same-origin API proxying (`/api/v1/**`, `/api/v1/media/**`, `/local-media/**`) so browser traffic goes through `http://localhost:8080` instead of cross-origin service calls.
+- Added upload path hardening for large payloads: media-service multipart limits, explicit `413` error mapping, nginx `client_max_body_size`, and frontend non-JSON error-response handling.
+- Added repository hygiene rules to ignore `.mp3` files in both `.gitignore` and root `.dockerignore`.
 - Moved legacy `infra/demo-ui` to fallback port `http://localhost:8088` for gradual retirement.
 
 ### Next item in queue
 1. High-priority: allow selecting multiple tracks to create a playlist from the web app.
 2. High-priority: show created playlists in the Playlists tab with associated track items.
-3. Implement FR-106 user preference management.
-4. Retire `infra/demo-ui` fully after React app covers all smoke-test flows.
+3. Implement backing playlist track-membership API (`playlist_tracks`) so playlist create-from-tracks is persisted and queryable.
+4. Implement FR-106 user preference management.
+5. Retire `infra/demo-ui` fully after React app covers all smoke-test flows.

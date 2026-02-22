@@ -51,7 +51,7 @@ Open `http://localhost:8080` and test:
 - login and store JWT in page state
 - OAuth-style login baseline
 - follow/unfollow another user
-- upload an audio file and play it back from local storage URL
+- upload an audio file and view saved track metadata
 
 Local frontend development (without Docker):
 
@@ -121,6 +121,7 @@ curl http://localhost:8082/api/v1/media/tracks \
 Current mock mode note:
 - upload currently persists track metadata to DB and stores a configurable dummy `fileUrl`
 - real per-upload persistent media storage can be re-enabled later
+- uploaded file binary is currently validated but intentionally not persisted
 
 Follow a user (protected):
 
@@ -435,10 +436,16 @@ Implemented now:
 6. JWT login endpoint and bearer-token auth for protected routes
 7. Follow/unfollow user capability (FR-104) backed by `user_follows` table
 8. Playlist CRUD capability (FR-105) backed by `playlists` table
-9. Baseline API conventions (`/api/v1` + standard error contract) and CI workflow
+9. Media track metadata workflow (upload + list) with DB persistence and dummy `fileUrl`
+10. React app track pages (`/tracks`, `/tracks/upload`) for listing and uploading tracks
+11. Same-origin API proxy in web container (`http://localhost:8080`) to reduce CORS issues
+12. Upload hardening: multipart size limits + `413` API handling + frontend non-JSON-safe error parsing
+13. Baseline API conventions (`/api/v1` + standard error contract) and CI workflow
+14. Repo hygiene updates: `.mp3` ignored in Git and Docker build contexts
 
 Next step:
-1. Implement FR-103 OAuth2-compatible extension path.
-2. Implement FR-106 user preferences.
-3. Expand playlist API with playlist-items/track membership.
-4. Sequence dependency: complete media track creation/persistence first (FR-201/FR-202), then attach tracks to playlists using stable `trackId`.
+1. High priority: add playlist track-membership APIs (`playlist_tracks`) using stable `trackId`.
+2. High priority: enable multi-select tracks in web app and create playlists from selected tracks.
+3. High priority: show playlists with their associated track items in Playlists tab.
+4. Implement FR-106 user preferences.
+5. Retire legacy demo UI (`http://localhost:8088`) once all smoke-test flows are covered in React app.
