@@ -77,6 +77,14 @@ curl -X POST http://localhost:8081/api/v1/public/auth/login \
   -d "{\"email\":\"test@example.com\",\"password\":\"pass123\"}"
 ```
 
+OAuth-style login/registration extension (provider identity link-or-create):
+
+```bash
+curl -X POST http://localhost:8081/api/v1/public/auth/oauth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"provider\":\"google\",\"providerUserId\":\"google-123\",\"email\":\"test@example.com\",\"displayName\":\"Test User\"}"
+```
+
 Protected endpoint (Bearer token):
 
 ```bash

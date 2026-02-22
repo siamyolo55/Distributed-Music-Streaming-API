@@ -130,7 +130,7 @@
 - [ ] FR-008: Observability baseline: structured logs, metrics, traces (partial baseline; tracing/log correlation pending)
 - [x] FR-101: User registration and profile management (registration with PostgreSQL persistence baseline)
 - [x] FR-102: JWT-based login/session flow (login endpoint issuing JWT access token)
-- [ ] FR-103: OAuth2-compatible auth extension path (pending)
+- [x] FR-103: OAuth2-compatible auth extension path (baseline OAuth identity linking + OAuth-style login endpoint)
 - [x] FR-104: Follow/unfollow user endpoints (`POST/DELETE/GET /api/v1/users/me/follows/{targetUserId}`)
 - [x] FR-105: Playlist create/read/update/delete (`/api/v1/users/me/playlists`)
 - [ ] FR-106: User preference management (pending)
@@ -145,9 +145,10 @@
 - Media upload now supports multipart audio ingestion with pluggable storage (`MediaObjectStorage`) and a local filesystem-backed server (`/local-media/**`) for dev.
 - Added minimal demo frontend (`infra/demo-ui`, served on `http://localhost:8080` via Docker Compose) to exercise register/login/follow/upload flows visually.
 - Added shared CORS configuration in `common-security` with configurable allowed origins (`security.cors.allowed-origins`) and defaults for local frontend development.
+- Added OAuth extension baseline with `user_oauth_accounts` persistence (`V5__create_user_oauth_accounts_table.sql`) and `/api/v1/public/auth/oauth/login` endpoint for provider identity link-or-create and JWT issuance.
 
 ### Next item in queue
-1. Implement FR-103 OAuth2-compatible extension path in `user-service`.
-2. Implement FR-106 user preference management.
-3. Expand playlist API with track-item management (`playlist_tracks`) and contract docs.
-4. Dependency note: implement playlist track membership only after media track creation/persistence is finalized (FR-201 + FR-202) so playlist items can reference stable `trackId`.
+1. Implement FR-106 user preference management.
+2. Expand playlist API with track-item management (`playlist_tracks`) and contract docs.
+3. Dependency note: implement playlist track membership only after media track creation/persistence is finalized (FR-201 + FR-202) so playlist items can reference stable `trackId`.
+4. Progress media FR-202 persistence details (track metadata table + stable track identifiers) before playlist track linking.
