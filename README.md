@@ -6,7 +6,9 @@ This repository now includes a runnable Milestone 0 scaffold (multi-module Maven
 
 ---
 
-## Quick Start (Run It)
+<details>
+<summary><strong>Quick Start (Run It)</strong></summary>
+
 
 ### Prerequisites
 - Java 21
@@ -165,7 +167,12 @@ Register server in pgAdmin:
 
 ---
 
-## 1) Vision
+
+</details>
+
+<details>
+<summary><strong>1) Vision</strong></summary>
+
 
 Build a microservices-based music streaming platform that demonstrates:
 
@@ -177,7 +184,12 @@ Build a microservices-based music streaming platform that demonstrates:
 
 ---
 
-## 2) Core Services
+
+</details>
+
+<details>
+<summary><strong>2) Core Services</strong></summary>
+
 
 ### 1. User Service
 
@@ -263,7 +275,12 @@ Build a microservices-based music streaming platform that demonstrates:
 
 ---
 
-## 3) System Design Principles
+
+</details>
+
+<details>
+<summary><strong>3) System Design Principles</strong></summary>
+
 
 To keep this project senior-level, follow these engineering principles from day 1:
 
@@ -278,7 +295,12 @@ To keep this project senior-level, follow these engineering principles from day 
 
 ---
 
-## 4) Event-Driven Backbone (Kafka)
+
+</details>
+
+<details>
+<summary><strong>4) Event-Driven Backbone (Kafka)</strong></summary>
+
 
 ### Initial event topics
 - `playback.events`
@@ -300,7 +322,12 @@ To keep this project senior-level, follow these engineering principles from day 
 
 ---
 
-## 5) Proposed Monorepo Layout
+
+</details>
+
+<details>
+<summary><strong>5) Proposed Monorepo Layout</strong></summary>
+
 
 ```text
 /Distributed-Music-Streaming-API
@@ -324,7 +351,12 @@ To keep this project senior-level, follow these engineering principles from day 
 
 ---
 
-## 6) Docker & Local Development
+
+</details>
+
+<details>
+<summary><strong>6) Docker & Local Development</strong></summary>
+
 
 ### Phase 1 local stack (implemented)
 Use `docker compose` to run:
@@ -341,7 +373,12 @@ Use `docker compose` to run:
 
 ---
 
-## 7) Recommended Libraries & Tooling
+
+</details>
+
+<details>
+<summary><strong>7) Recommended Libraries & Tooling</strong></summary>
+
 
 ### Spring ecosystem
 - Spring Boot 3.x
@@ -370,7 +407,12 @@ Use `docker compose` to run:
 
 ---
 
-## 8) API & Contract Guidelines
+
+</details>
+
+<details>
+<summary><strong>8) API & Contract Guidelines</strong></summary>
+
 
 - Use OpenAPI/Swagger for service contracts.
 - Version external APIs (`/api/v1/...`).
@@ -380,7 +422,12 @@ Use `docker compose` to run:
 
 ---
 
-## 9) Security Baseline
+
+</details>
+
+<details>
+<summary><strong>9) Security Baseline</strong></summary>
+
 
 - JWT access tokens for API auth.
 - OAuth2 for social login/federation expansion.
@@ -390,7 +437,12 @@ Use `docker compose` to run:
 
 ---
 
-## 10) Suggested Delivery Roadmap
+
+</details>
+
+<details>
+<summary><strong>10) Suggested Delivery Roadmap</strong></summary>
+
 
 ### Milestone 0 — Foundation
 - Initialize monorepo modules
@@ -420,7 +472,12 @@ Use `docker compose` to run:
 
 ---
 
-## 11) Interview Talking Points This Project Enables
+
+</details>
+
+<details>
+<summary><strong>11) Interview Talking Points This Project Enables</strong></summary>
+
 
 - Event-driven pipelines and consumer groups
 - Stream processing and aggregation windows
@@ -432,7 +489,12 @@ Use `docker compose` to run:
 
 ---
 
-## 12) Current Status + Next Step
+
+</details>
+
+<details>
+<summary><strong>12) Current Status + Next Step</strong></summary>
+
 
 Implemented now:
 1. Root multi-module Maven project
@@ -457,3 +519,6 @@ Next step:
 2. Add filtering/search and paging on discover users list for scale.
 3. Improve Following page with richer user profile cards and follower counts.
 4. Retire legacy demo UI (`http://localhost:8088`) once all smoke-test flows are covered in React app.
+
+</details>
+
