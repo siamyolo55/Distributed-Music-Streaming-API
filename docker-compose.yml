@@ -147,6 +147,19 @@ services:
     volumes:
       - media-files:/data/media
 
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: dmsa-web
+    depends_on:
+      user-service:
+        condition: service_started
+      media-service:
+        condition: service_started
+    ports:
+      - "8080:80"
+
   demo-frontend:
     image: nginx:1.27-alpine
     container_name: dmsa-demo-frontend
@@ -158,7 +171,7 @@ services:
       media-service:
         condition: service_started
     ports:
-      - "8080:80"
+      - "8088:80"
 
 volumes:
   postgres-data:

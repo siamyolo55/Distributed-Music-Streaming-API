@@ -26,7 +26,8 @@ docker compose up --build
 ```
 
 Services and ports:
-- Demo Frontend: `http://localhost:8080`
+- Web App (React): `http://localhost:8080`
+- Legacy Demo UI (temporary): `http://localhost:8088`
 - User Service: `http://localhost:8081`
 - Media Service: `http://localhost:8082`
 - PostgreSQL: `localhost:5432`
@@ -43,13 +44,26 @@ curl http://localhost:8081/actuator/health
 curl http://localhost:8082/actuator/health
 ```
 
-### 4) Use the demo frontend (recommended)
+### 4) Use the React web app (recommended)
 
 Open `http://localhost:8080` and test:
 - register user
 - login and store JWT in page state
+- OAuth-style login baseline
 - follow/unfollow another user
 - upload an audio file and play it back from local storage URL
+
+Local frontend development (without Docker):
+
+```bash
+cd apps/web
+npm install
+npm run dev
+```
+
+Vite dev URL: `http://localhost:5173`
+
+Legacy fallback UI remains available temporarily at `http://localhost:8088` and will be retired.
 
 If you need custom frontend origins, configure:
 - `CORS_ALLOWED_ORIGINS` for `user-service`

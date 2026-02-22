@@ -146,9 +146,12 @@
 - Added minimal demo frontend (`infra/demo-ui`, served on `http://localhost:8080` via Docker Compose) to exercise register/login/follow/upload flows visually.
 - Added shared CORS configuration in `common-security` with configurable allowed origins (`security.cors.allowed-origins`) and defaults for local frontend development.
 - Added OAuth extension baseline with `user_oauth_accounts` persistence (`V5__create_user_oauth_accounts_table.sql`) and `/api/v1/public/auth/oauth/login` endpoint for provider identity link-or-create and JWT issuance.
+- Added new React app scaffold under `apps/web` (Vite + TypeScript) and wired it in Docker Compose at `http://localhost:8080`.
+- Moved legacy `infra/demo-ui` to fallback port `http://localhost:8088` for gradual retirement.
 
 ### Next item in queue
 1. Implement FR-106 user preference management.
 2. Expand playlist API with track-item management (`playlist_tracks`) and contract docs.
 3. Dependency note: implement playlist track membership only after media track creation/persistence is finalized (FR-201 + FR-202) so playlist items can reference stable `trackId`.
 4. Progress media FR-202 persistence details (track metadata table + stable track identifiers) before playlist track linking.
+5. Retire `infra/demo-ui` fully after React app covers all smoke-test flows.
