@@ -23,6 +23,16 @@ export type PlaylistItem = {
   updatedAt: string;
   tracks: PlaylistTrackItem[];
 };
+export type DiscoverUserItem = {
+  userId: string;
+  displayName: string;
+  email: string;
+  createdAt: string;
+};
+export type FollowedUserItem = {
+  targetUserId: string;
+  followedAt: string;
+};
 
 const defaultApiBase = window.location.origin;
 const userApi = import.meta.env.VITE_USER_API_BASE_URL ?? defaultApiBase;
@@ -101,7 +111,11 @@ export function unfollow(targetUserId: string, token: string) {
 }
 
 export function listFollows(token: string) {
-  return request(`${userApi}/api/v1/users/me/follows`, { method: "GET" }, token);
+  return request<FollowedUserItem[]>(`${userApi}/api/v1/users/me/follows`, { method: "GET" }, token);
+}
+
+export function listDiscoverUsers(token: string) {
+  return request<DiscoverUserItem[]>(`${userApi}/api/v1/users/discover`, { method: "GET" }, token);
 }
 
 export async function uploadTrack(

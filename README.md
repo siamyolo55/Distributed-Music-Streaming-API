@@ -50,7 +50,7 @@ Open `http://localhost:8080` and test:
 - register user
 - login and store JWT in page state
 - OAuth-style login baseline
-- follow/unfollow another user
+- browse discoverable users and follow/unfollow from the Following page
 - upload an audio file and view saved track metadata
 
 Local frontend development (without Docker):
@@ -134,6 +134,13 @@ List followed users (protected):
 
 ```bash
 curl http://localhost:8081/api/v1/users/me/follows \
+  -H "Authorization: Bearer <ACCESS_TOKEN>"
+```
+
+Discover users to follow (protected):
+
+```bash
+curl http://localhost:8081/api/v1/users/discover \
   -H "Authorization: Bearer <ACCESS_TOKEN>"
 ```
 
@@ -442,10 +449,11 @@ Implemented now:
 12. Upload hardening: multipart size limits + `413` API handling + frontend non-JSON-safe error parsing
 13. Baseline API conventions (`/api/v1` + standard error contract) and CI workflow
 14. Repo hygiene updates: `.mp3` ignored in Git and Docker build contexts
+15. User discovery endpoint (`GET /api/v1/users/discover`) to support follow suggestions
+16. Following page upgraded to show discoverable users with one-click follow/unfollow actions
 
 Next step:
-1. High priority: add playlist track-membership APIs (`playlist_tracks`) using stable `trackId`.
-2. High priority: enable multi-select tracks in web app and create playlists from selected tracks.
-3. High priority: show playlists with their associated track items in Playlists tab.
-4. Implement FR-106 user preferences.
-5. Retire legacy demo UI (`http://localhost:8088`) once all smoke-test flows are covered in React app.
+1. Implement FR-106 user preferences.
+2. Add filtering/search and paging on discover users list for scale.
+3. Improve Following page with richer user profile cards and follower counts.
+4. Retire legacy demo UI (`http://localhost:8088`) once all smoke-test flows are covered in React app.

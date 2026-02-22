@@ -154,10 +154,11 @@
 - Added upload path hardening for large payloads: media-service multipart limits, explicit `413` error mapping, nginx `client_max_body_size`, and frontend non-JSON error-response handling.
 - Added repository hygiene rules to ignore `.mp3` files in both `.gitignore` and root `.dockerignore`.
 - Moved legacy `infra/demo-ui` to fallback port `http://localhost:8088` for gradual retirement.
+- Added user discovery API `GET /api/v1/users/discover` in `user-service` (excluding current user) to support social follow UX.
+- Upgraded React Following page to load discoverable users plus current follow state and provide one-click follow/unfollow actions.
 
 ### Next item in queue
-1. High-priority: allow selecting multiple tracks to create a playlist from the web app.
-2. High-priority: show created playlists in the Playlists tab with associated track items.
-3. Implement backing playlist track-membership API (`playlist_tracks`) so playlist create-from-tracks is persisted and queryable.
-4. Implement FR-106 user preference management.
-5. Retire `infra/demo-ui` fully after React app covers all smoke-test flows.
+1. Implement FR-106 user preference management.
+2. Add discover-users search/filter + paging for larger datasets.
+3. Add richer social graph APIs (followers/following counts and optional mutuals).
+4. Retire `infra/demo-ui` fully after React app covers all smoke-test flows.
