@@ -1,7 +1,9 @@
 package com.musicstreaming.userservice.playlist.api;
 
+import com.musicstreaming.userservice.api.AuthenticatedUserResolver;
 import com.musicstreaming.userservice.playlist.service.PlaylistService;
 import com.musicstreaming.userservice.playlist.service.PlaylistService.PlaylistDetails;
+import com.musicstreaming.userservice.playlist.service.PlaylistService.PlaylistTrackInput;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,16 +22,17 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/users/me/playlists")
 public class UserPlaylistController {
 
     private final PlaylistService playlistService;
+    private final AuthenticatedUserResolver authenticatedUserResolver;
 
-    public UserPlaylistController(PlaylistService playlistService) {
+    public UserPlaylistController(PlaylistService playlistService, AuthenticatedUserResolver authenticatedUserResolver) {
         this.playlistService = playlistService;
+        this.authenticatedUserResolver = authenticatedUserResolver;
     }
 
     @PostMapping
@@ -37,7 +40,7 @@ public class UserPlaylistController {
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody PlaylistUpsertRequest request) {
         UUID userId = userIdFromJwt(jwt);
-        PlaylistDetails created = playlistService.create(userId, request.name(), request.description());
+        PlaylistDetails created = playlistService.create(userId, request.name(), request.description(), toTrackInputs(request.tracks()));
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(created));
     }
 
@@ -65,7 +68,7 @@ public class UserPlaylistController {
             @PathVariable("playlistId") UUID playlistId,
             @Valid @RequestBody PlaylistUpsertRequest request) {
         UUID userId = userIdFromJwt(jwt);
-        PlaylistDetails updated = playlistService.update(userId, playlistId, request.name(), request.description());
+        PlaylistDetails updated = playlistService.update(userId, playlistId, request.name(), request.description(), toTrackInputs(request.tracks()));
         return ResponseEntity.ok(toResponse(updated));
     }
 
@@ -79,11 +82,7 @@ public class UserPlaylistController {
     }
 
     private UUID userIdFromJwt(Jwt jwt) {
-        try {
-            return UUID.fromString(jwt.getSubject());
-        } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token subject", ex);
-        }
+        return authenticatedUserResolver.resolveUserId(jwt);
     }
 
     private PlaylistResponse toResponse(PlaylistDetails details) {
@@ -92,7 +91,24 @@ public class UserPlaylistController {
                 details.name(),
                 details.description(),
                 details.createdAt(),
-                details.updatedAt());
+                details.updatedAt(),
+                details.tracks().stream()
+                        .map(track -> new PlaylistTrackResponse(
+                                track.trackId(),
+                                track.title(),
+                                track.artistName(),
+                                track.genre(),
+                                track.position()))
+                        .toList());
+    }
+
+    private List<PlaylistTrackInput> toTrackInputs(List<PlaylistTrackRequest> tracks) {
+        if (tracks == null) {
+            return null;
+        }
+        return tracks.stream()
+                .map(track -> new PlaylistTrackInput(track.trackId(), track.title(), track.artistName(), track.genre()))
+                .toList();
     }
 
     public record PlaylistUpsertRequest(
@@ -100,7 +116,26 @@ public class UserPlaylistController {
             @Size(max = 120, message = "must be at most 120 characters")
             String name,
             @Size(max = 600, message = "must be at most 600 characters")
-            String description
+            String description,
+            @Valid
+            @Size(max = 500, message = "must be at most 500 tracks")
+            List<PlaylistTrackRequest> tracks
+    ) {
+    }
+
+    public record PlaylistTrackRequest(
+            @NotBlank(message = "must not be blank")
+            @Size(max = 64, message = "must be at most 64 characters")
+            String trackId,
+            @NotBlank(message = "must not be blank")
+            @Size(max = 200, message = "must be at most 200 characters")
+            String title,
+            @NotBlank(message = "must not be blank")
+            @Size(max = 200, message = "must be at most 200 characters")
+            String artistName,
+            @NotBlank(message = "must not be blank")
+            @Size(max = 80, message = "must be at most 80 characters")
+            String genre
     ) {
     }
 
@@ -109,7 +144,17 @@ public class UserPlaylistController {
             String name,
             String description,
             Instant createdAt,
-            Instant updatedAt
+            Instant updatedAt,
+            List<PlaylistTrackResponse> tracks
+    ) {
+    }
+
+    public record PlaylistTrackResponse(
+            String trackId,
+            String title,
+            String artistName,
+            String genre,
+            int position
     ) {
     }
 }

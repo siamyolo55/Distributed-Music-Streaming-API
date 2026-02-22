@@ -5,9 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyList;
 
 import com.musicstreaming.userservice.playlist.domain.Playlist;
 import com.musicstreaming.userservice.playlist.domain.PlaylistRepository;
+import com.musicstreaming.userservice.playlist.domain.PlaylistTrack;
+import com.musicstreaming.userservice.playlist.domain.PlaylistTrackRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +27,14 @@ class PlaylistServiceTests {
 
     @Mock
     private PlaylistRepository playlistRepository;
+    @Mock
+    private PlaylistTrackRepository playlistTrackRepository;
 
     private PlaylistService playlistService;
 
     @BeforeEach
     void setUp() {
-        playlistService = new PlaylistService(playlistRepository);
+        playlistService = new PlaylistService(playlistRepository, playlistTrackRepository);
     }
 
     @Test
@@ -41,11 +46,12 @@ class PlaylistServiceTests {
         setId(saved, playlistId);
         when(playlistRepository.save(org.mockito.ArgumentMatchers.any(Playlist.class))).thenReturn(saved);
 
-        PlaylistService.PlaylistDetails result = playlistService.create(userId, "  Road Trip  ", "   ");
+        PlaylistService.PlaylistDetails result = playlistService.create(userId, "  Road Trip  ", "   ", List.of());
 
         assertThat(result.id()).isEqualTo(playlistId);
         assertThat(result.name()).isEqualTo("Road Trip");
         assertThat(result.description()).isNull();
+        assertThat(result.tracks()).isEmpty();
     }
 
     @Test
@@ -67,6 +73,7 @@ class PlaylistServiceTests {
         Playlist playlist = new Playlist(userId, "Focus", "coding", now, now);
         setId(playlist, playlistId);
         when(playlistRepository.findAllByUserIdOrderByUpdatedAtDesc(userId)).thenReturn(List.of(playlist));
+        when(playlistTrackRepository.findAllByPlaylistIdInOrderByPlaylistIdAscPositionAsc(List.of(playlistId))).thenReturn(List.of());
 
         List<PlaylistService.PlaylistDetails> result = playlistService.list(userId);
 
@@ -74,6 +81,7 @@ class PlaylistServiceTests {
         assertThat(result.getFirst().id()).isEqualTo(playlistId);
         assertThat(result.getFirst().name()).isEqualTo("Focus");
         assertThat(result.getFirst().description()).isEqualTo("coding");
+        assertThat(result.getFirst().tracks()).isEmpty();
     }
 
     @Test
@@ -85,7 +93,9 @@ class PlaylistServiceTests {
         setId(playlist, playlistId);
         when(playlistRepository.findByIdAndUserId(playlistId, userId)).thenReturn(Optional.of(playlist));
 
-        PlaylistService.PlaylistDetails result = playlistService.update(userId, playlistId, " New ", "  updated ");
+        when(playlistTrackRepository.findAllByPlaylistIdOrderByPositionAsc(playlistId)).thenReturn(List.of());
+
+        PlaylistService.PlaylistDetails result = playlistService.update(userId, playlistId, " New ", "  updated ", null);
 
         assertThat(result.name()).isEqualTo("New");
         assertThat(result.description()).isEqualTo("updated");
@@ -115,6 +125,29 @@ class PlaylistServiceTests {
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("Playlist not found");
         verify(playlistRepository, never()).delete(org.mockito.ArgumentMatchers.any(Playlist.class));
+    }
+
+    @Test
+    void createPersistsTrackItemsWhenProvided() {
+        UUID userId = UUID.randomUUID();
+        UUID playlistId = UUID.randomUUID();
+        Instant now = Instant.now();
+        Playlist saved = new Playlist(userId, "Party", "night vibes", now, now);
+        setId(saved, playlistId);
+
+        when(playlistRepository.save(org.mockito.ArgumentMatchers.any(Playlist.class))).thenReturn(saved);
+        when(playlistTrackRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PlaylistService.PlaylistDetails result = playlistService.create(
+                userId,
+                "Party",
+                "night vibes",
+                List.of(new PlaylistService.PlaylistTrackInput("trk_1", "Song A", "Artist A", "Pop")));
+
+        verify(playlistTrackRepository).deleteByPlaylistId(playlistId);
+        verify(playlistTrackRepository).saveAll(anyList());
+        assertThat(result.tracks()).hasSize(1);
+        assertThat(result.tracks().getFirst().trackId()).isEqualTo("trk_1");
     }
 
     private static void setId(Playlist playlist, UUID id) {

@@ -16,16 +16,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/users/me/follows")
 public class UserFollowController {
 
     private final UserFollowService userFollowService;
+    private final AuthenticatedUserResolver authenticatedUserResolver;
 
-    public UserFollowController(UserFollowService userFollowService) {
+    public UserFollowController(UserFollowService userFollowService, AuthenticatedUserResolver authenticatedUserResolver) {
         this.userFollowService = userFollowService;
+        this.authenticatedUserResolver = authenticatedUserResolver;
     }
 
     @PostMapping("/{targetUserId}")
@@ -59,11 +60,7 @@ public class UserFollowController {
     }
 
     private UUID userIdFromJwt(Jwt jwt) {
-        try {
-            return UUID.fromString(jwt.getSubject());
-        } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token subject", ex);
-        }
+        return authenticatedUserResolver.resolveUserId(jwt);
     }
 
     public record FollowResponse(String targetUserId, String status) {

@@ -8,6 +8,21 @@ export type TrackItem = {
   fileUrl: string;
   createdAt: string;
 };
+export type PlaylistTrackItem = {
+  trackId: string;
+  title: string;
+  artistName: string;
+  genre: string;
+  position: number;
+};
+export type PlaylistItem = {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+  tracks: PlaylistTrackItem[];
+};
 
 const defaultApiBase = window.location.origin;
 const userApi = import.meta.env.VITE_USER_API_BASE_URL ?? defaultApiBase;
@@ -112,4 +127,23 @@ export function listTracks(token: string) {
 
 export function mediaUrl(path: string) {
   return `${mediaApi}${path}`;
+}
+
+export function createPlaylist(
+  payload: {
+    name: string;
+    description?: string;
+    tracks: Array<{ trackId: string; title: string; artistName: string; genre: string }>;
+  },
+  token: string
+) {
+  return request<PlaylistItem>(`${userApi}/api/v1/users/me/playlists`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }, token);
+}
+
+export function listPlaylists(token: string) {
+  return request<PlaylistItem[]>(`${userApi}/api/v1/users/me/playlists`, { method: "GET" }, token);
 }
